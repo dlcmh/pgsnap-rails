@@ -1,0 +1,5 @@
+Metrics/BlockLength:
+  ExcludedMethods:
+    - Struct.new
+Style/Documentation:
+  Enabled: false
