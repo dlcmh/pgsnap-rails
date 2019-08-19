@@ -6,7 +6,7 @@ module PgsnapRails
       @ast = ast
       @enum = opts[:enum]
       @model = model
-      @only_columns = opts[:only]
+      @only_columns = Array(opts[:only]).map(&:to_s)
     end
 
     def assign
@@ -32,9 +32,16 @@ module PgsnapRails
 
     def assignment__default
       m = @ast.model_for(@model)
+      top_level_columns = if @only_columns.presence
+                            m.top_level_columns.select do |rec|
+                              rec.column_name.in?(@only_columns)
+                            end
+                          else
+                            m.top_level_columns
+                          end
 
       From.new(
-        m.top_level_columns.map do |col|
+        top_level_columns.map do |col|
           Column.new(@ast, col).assign
         end,
         m.to_sql,
